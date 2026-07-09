@@ -28,6 +28,16 @@ def detail(request, task_id):
     except Task.DoesNotExist:
         raise Http404("Task does not exist")
 
+    if request.method == 'POST':
+        task.title = request.POST.get('title', task.title)
+        due_at = request.POST.get('due_at')
+        if due_at:
+            task.due_at = make_aware(parse_datetime(due_at))
+        else:
+            task.due_at = None
+        task.completed = 'completed' in request.POST or request.POST.get('completed') == 'on'
+        task.save()
+
     context = {
         'task': task,
     }
